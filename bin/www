@@ -6,20 +6,33 @@
 
 var app = require('../app');
 var debug = require('debug')('slack-sktbot:server');
-var http = require('http');
+var https = require('https');
+var fs = require('fs');
+
+/**
+ * 設定ファイル読み込み
+ */
+var conf = JSON.parse(fs.readFileSync("./conf/server.conf"));
+console.log('--server conf')
+console.log(conf)
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || conf.port);
 app.set('port', port);
+
+var options = {
+  key: fs.readFileSync(conf.key),
+  cert: fs.readFileSync(conf.cert)
+}
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var server = https.createServer(options,app);
 
 /**
  * Listen on provided port, on all network interfaces.
